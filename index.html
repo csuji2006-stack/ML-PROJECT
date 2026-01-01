@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Irrigation ML Predictor</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: black;
+            color: white;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .input-group img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .result-section h2 {
+            text-align: center;
+            color: #2d3436;
+            margin-bottom: 20px;
+        }
+        .decision {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #085028;
+        }
+        .water-quantity {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #0f2e46;
+        }
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .sensor-card {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .sensor-icon {
+            width: 30px;
+            height: 30px;
+            margin-bottom: 5px;
+        }
+        .sensor-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3436;
+        }
+        .sensor-label {
+            font-size: 0.8rem;
+            color: #636e72;
+        }
+        .chart-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .chart-section h3 {
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #141212;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="/static/images/header.svg" alt="Header" style="width: 100%; max-width: 600px; margin-bottom: 20px;">
+    <h1>Smart Irrigation Predictor</h1>
+    <p>Enter sensor data to get irrigation decision and water quantity (liters).</p>
+
+    <form action="/predict" method="POST">
+        <div class="input-group">
+            <img src="/static/images/soil_icon.svg" alt="Soil">
+            <input type="number" name="soil_moisture" placeholder="Soil Moisture (%)" min="0" max="100" required>
+        </div>
+        <div class="input-group">
+            <img src="/static/images/temp_icon.svg" alt="Temperature">
+            <input type="number" name="temperature" placeholder="Temperature (°C)" min="0" max="60" required>
+        </div>
+        <div class="input-group">
+            <img src="/static/images/humidity_icon.svg" alt="Humidity">
+            <input type="number" name="humidity" placeholder="Humidity (%)" min="0" max="100" required>
+        </div>
+        <div class="input-group">
+            <img src="/static/images/rain_icon.svg" alt="Rainfall">
+            <input type="number" name="rainfall_hist" placeholder="Rainfall (mm, last 7 days)" min="0" max="100" required>
+        </div>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if irr_req %}
+    <div class="result-section">
+        <h2>Prediction Results</h2>
+        <div class="result-output">
+            <div class="decision">
+                <img src="/static/images/irrigation_icon.svg" alt="Irrigation" style="width: 50px; height: 50px; vertical-align: middle; margin-right: 10px;">
+                Irrigation Required: {{ irr_req | upper }}
+            </div>
+            <div class="water-quantity">
+                <img src="/static/images/water_icon.svg" alt="Water" style="width: 60px; height: 60px; vertical-align: middle; margin-right: 10px;">
+                Water Quantity: {{ water_qty }} L
+            </div>
+            <div class="sensors-grid">
+                <div class="sensor-card">
+                    <img src="/static/images/soil_icon.svg" alt="Soil" class="sensor-icon">
+                    <div class="sensor-value">{{ soil_moisture }}</div>
+                    <div class="sensor-label">Soil %</div>
+                </div>
+                <div class="sensor-card">
+                    <img src="/static/images/temp_icon.svg" alt="Temperature" class="sensor-icon">
+                    <div class="sensor-value">{{ temperature }}</div>
+                    <div class="sensor-label">Temp °C</div>
+                </div>
+                <div class="sensor-card">
+                    <img src="/static/images/humidity_icon.svg" alt="Humidity" class="sensor-icon">
+                    <div class="sensor-value">{{ humidity }}</div>
+                    <div class="sensor-label">Humidity %</div>
+                </div>
+                <div class="sensor-card">
+                    <img src="/static/images/rain_icon.svg" alt="Rainfall" class="sensor-icon">
+                    <div class="sensor-value">{{ rainfall_hist }}</div>
+                    <div class="sensor-label">Rain mm</div>
+                </div>
+            </div>
+            <div class="chart-section">
+                <h3>Sensor Data Visualization</h3>
+                <img src="{{ chart_path }}" alt="Sensor Data Chart" style="max-width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</body>
+
+</html>
